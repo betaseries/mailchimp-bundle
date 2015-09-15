@@ -10,7 +10,16 @@
     ],
     "autoload": {
         "psr-4": {
-            "Betacie\\Bundle\\MailChimpBundle\\": "src/"
+            "Betacie\\MailChimpBundle\\": "src/"
         }
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^2.3"
+    },
+    "require": {
+        "mailchimp/mailchimp": "^2.0"
+    },
+    "config": {
+        "bin-dir": "bin"
     }
 }
