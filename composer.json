@@ -1,0 +1,16 @@
+{
+    "name": "betacie/mailchimp-bundle",
+    "description": "MailChimp API Symfony Bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gabriel Pillet",
+            "email": "contact@gabrielpillet.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Betacie\\Bundle\\MailChimpBundle\\": "src/"
+        }
+    }
+}
