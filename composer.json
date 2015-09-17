@@ -13,11 +13,9 @@
             "Betacie\\MailChimpBundle\\": "src/"
         }
     },
-    "require-dev": {
-        "phpspec/phpspec": "^2.3"
-    },
     "require": {
-        "mailchimp/mailchimp": "^2.0"
+        "mailchimp/mailchimp": "^2.0",
+        "phpspec/phpspec": "^2.3"
     },
     "config": {
         "bin-dir": "bin"
