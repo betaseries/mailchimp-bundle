@@ -5,12 +5,12 @@ namespace Betacie\MailchimpBundle\Subscriber;
 class Subscriber
 {
     protected $email;
-    protected $firstname;
-    protected $lastname;
+    protected $mergeTags;
 
-    public function __construct($email)
+    public function __construct($email, array $mergeTags = [])
     {
         $this->email = $email;
+        $this->mergeTags = $mergeTags;
     }
 
     public function getEmail()
@@ -18,27 +18,8 @@ class Subscriber
         return $this->email;
     }
 
-    public function setFirstname($firstname)
+    public function getMergeTags()
     {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    public function setLastname($lastname)
-    {
-        $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    public function getFirstname()
-    {
-        return $this->firstname;
-    }
-
-    public function getLastname()
-    {
-        return $this->lastname;
+        return $this->mergeTags;
     }
 }

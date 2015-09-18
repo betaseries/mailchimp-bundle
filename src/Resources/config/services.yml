@@ -8,4 +8,6 @@ services:
 
     betacie_mailchimp.list_synchronizer:
         class: %betacie_mailchimp.list_synchronizer_class%
-        arguments: ['@betacie_mailchimp.mailchimp_master']
+        arguments:
+            - '@betacie_mailchimp.mailchimp_master'
+            - '@logger'
