@@ -1,6 +1,6 @@
 <?php
 
-namespace Betacie\MailChimpBundle\DependencyInjection;
+namespace Betacie\MailchimpBundle\DependencyInjection;
 
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
@@ -8,7 +8,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
 
-class BetacieMailChimpExtension extends Extension
+class BetacieMailchimpExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {

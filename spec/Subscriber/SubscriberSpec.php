@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Betacie\MailChimpBundle\Subscriber;
+namespace spec\Betacie\MailchimpBundle\Subscriber;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -14,7 +14,7 @@ class SubscriberSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Betacie\MailChimpBundle\Subscriber\Subscriber');
+        $this->shouldHaveType('Betacie\MailchimpBundle\Subscriber\Subscriber');
     }
 
     function it_has_an_email()

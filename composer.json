@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Betacie\\MailChimpBundle\\": "src/"
+            "Betacie\\MailchimpBundle\\": "src/"
         }
     },
     "require": {

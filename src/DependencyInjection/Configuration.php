@@ -1,6 +1,6 @@
 <?php
 
-namespace Betacie\MailChimpBundle\DependencyInjection;
+namespace Betacie\MailchimpBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;

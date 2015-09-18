@@ -1,4 +1,4 @@
 suites:
     default:
-        namespace: Betacie\MailChimpBundle
-        psr4_prefix: Betacie\MailChimpBundle
+        namespace: Betacie\MailchimpBundle
+        psr4_prefix: Betacie\MailchimpBundle

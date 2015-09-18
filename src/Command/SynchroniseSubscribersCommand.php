@@ -1,6 +1,6 @@
 <?php
 
-namespace Betacie\MailChimpBundle\Command;
+namespace Betacie\MailchimpBundle\Command;
 
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
@@ -9,14 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Betacie\MailChimpBundle\Provider\ProviderInterface;
+use Betacie\MailchimpBundle\Provider\ProviderInterface;
 
 class SynchroniseSubscribersCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setDescription('Synchronizing subscribers in MailChimp')
+            ->setDescription('Synchronizing subscribers in Mailchimp')
             ->setName('betacie:mailchimp:synchronize-subscribers')
         ;
     }
@@ -27,7 +27,7 @@ class SynchroniseSubscribersCommand extends ContainerAwareCommand
 
         $lists = $this->getContainer()->getParameter('betacie_mailchimp.lists');
         if (sizeof($lists) == 0) {
-            throw new \RuntimeException("No MailChimp list has been defined. Check the your config.yml file based on MailChimpBundle's README.md");
+            throw new \RuntimeException("No Mailchimp list has been defined. Check the your config.yml file based on MailchimpBundle's README.md");
         }
 
         foreach ($lists as $listName => $listParameters) {
@@ -47,7 +47,7 @@ class SynchroniseSubscribersCommand extends ContainerAwareCommand
         }
 
         if (!$provider instanceof ProviderInterface) {
-            throw new \InvalidArgumentException(sprintf('Provider "%s" should implement Betacie\MailChimpBundle\Provider\ProviderInterface.', $providerServiceKey));
+            throw new \InvalidArgumentException(sprintf('Provider "%s" should implement Betacie\MailchimpBundle\Provider\ProviderInterface.', $providerServiceKey));
         }
 
         return $provider;

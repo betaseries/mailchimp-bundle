@@ -1,6 +1,6 @@
 <?php
 
-namespace Betacie\MailChimpBundle\Subscriber;
+namespace Betacie\MailchimpBundle\Subscriber;
 
 class Subscriber
 {

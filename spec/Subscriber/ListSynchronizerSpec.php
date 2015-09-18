@@ -1,6 +1,6 @@
 <?php
 
-namespace spec\Betacie\MailChimpBundle\Subscriber;
+namespace spec\Betacie\MailchimpBundle\Subscriber;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -15,6 +15,6 @@ class ListSynchronizerSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Betacie\MailChimpBundle\Subscriber\ListSynchronizer');
+        $this->shouldHaveType('Betacie\MailchimpBundle\Subscriber\ListSynchronizer');
     }
 }

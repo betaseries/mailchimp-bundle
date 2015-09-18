@@ -1,9 +1,9 @@
 <?php
 
-namespace Betacie\MailChimpBundle\Subscriber;
+namespace Betacie\MailchimpBundle\Subscriber;
 
 use Mailchimp;
-use Betacie\MailChimpBundle\Provider\ProviderInterface;
+use Betacie\MailchimpBundle\Provider\ProviderInterface;
 
 class ListSynchronizer
 {
@@ -21,7 +21,7 @@ class ListSynchronizer
         ]);
 
         if ($listData['total'] === 0) {
-            throw new \RuntimeException(sprintf('The list "%s" was not found in MailChimp. You need to create it first in MailChimp backend.', $listName));
+            throw new \RuntimeException(sprintf('The list "%s" was not found in Mailchimp. You need to create it first in Mailchimp backend.', $listName));
         }
 
         $listId = $listData['data'][0]['id'];

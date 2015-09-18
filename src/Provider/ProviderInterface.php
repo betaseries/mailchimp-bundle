@@ -1,6 +1,6 @@
 <?php
 
-namespace Betacie\MailChimpBundle\Provider;
+namespace Betacie\MailchimpBundle\Provider;
 
 interface ProviderInterface
 {

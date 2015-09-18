@@ -1,5 +1,5 @@
 parameters:
-    betacie_mailchimp.list_synchronizer_class: Betacie\MailChimpBundle\Subscriber\ListSynchronizer
+    betacie_mailchimp.list_synchronizer_class: Betacie\MailchimpBundle\Subscriber\ListSynchronizer
 
 services:
     betacie_mailchimp.mailchimp_master:
