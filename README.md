@@ -1,5 +1,6 @@
 # mailchimp-bundle
-MailChimp API Symfony Bundle
+
+This bundle will help you synchronise your project's users into MailChimp. New users will be added to MailChimp, existing users will be updated and user no longer in your project will be deleted of MailChimp.
 
 ## Setup
 
@@ -14,7 +15,7 @@ Add `Betacie\MailChimpBundle\BetacieMailChimpBundle` to your `AppKernel.php`:
 ```php 
 $bundles = [
     // ...
-        new Betacie\MailChimpBundle\BetacieMailChimpBundle(),
+    new Betacie\MailChimpBundle\BetacieMailChimpBundle(),
 ];
 ```
 
@@ -29,12 +30,13 @@ betacie_mailchimp:
     api_key: YOURMAILCHIMPAPIKEY
     lists:
         list1:
+            # mc_language: 'fr'
             subscriber_providers: 'yourapp.provider1'
         list2:
             subscriber_providers: 'yourapp.provider2'
 ```
 
-Where `listX` is the name of your MailChimp lists, and `yourapp.providerX` is the key of your provider's service that will provide the subscribers that need to be synchronized in MailChimp.
+Where `listX` is the name of your MailChimp lists, and `yourapp.providerX` is the key of your provider's service that will provide the subscribers that need to be synchronized in MailChimp. The key `mc_language` is optional and will set this language for all subscribers in this list, see [the list of accepted language codes](http://kb.mailchimp.com/lists/managing-subscribers/view-and-edit-subscriber-languages#code).
 
 ### Example of a provider
 
@@ -42,25 +44,33 @@ Your provider should be accessible via a service key (the same you reference in 
 
 ```yaml
 services:
-    diwi_mailchimp_subscriber_provider:
-        class: Diwi\App\Newsletter\SubscriberProvider
-        arguments: [@diwi_user_repository]
+    yourapp_mailchimp_subscriber_provider:
+        class: YourApp\App\Newsletter\SubscriberProvider
+        arguments: [@yourapp_user_repository]
 ```
 
-It should implement `Betacie\MailChimpBundle\Provider\ProviderInterface` and return an array of `Betacie\MailChimpBundle\Subscriber\Subscriber` objects. 
+It should implement `Betacie\MailChimpBundle\Provider\ProviderInterface` and return an array of `Betacie\MailChimpBundle\Subscriber\Subscriber` objects. The first argument of the `Subscriber` object is its e-mail, the second argument is an array of merge tags values you need to add in MailChimp's backend in your list settings under `List fields and *|MERGE|* tags`.
 
 ```php
 <?php
 
-namespace Diwi\App\Newsletter;
+namespace YourApp\App\Newsletter;
 
-use Betacie\MailChimpBundle\Provider\ProviderInterface;
-use Betacie\MailChimpBundle\Subscriber\Subscriber;
-use Diwi\Model\User\UserRepository;
-use Diwi\Model\User\User;
+use Betacie\MailchimpBundle\Provider\ProviderInterface;
+use Betacie\MailchimpBundle\Subscriber\Subscriber;
+use YourApp\Model\User\UserRepository;
+use YourApp\Model\User\User;
 
 class SubscriberProvider implements ProviderInterface
 {
+    // these tags should match the one you added in MailChimp's backend
+    const TAG_NICKNAME =           'NICKNAME';
+    const TAG_GENDER =             'GENDER';
+    const TAG_BIRTHDATE =          'BIRTHDATE';
+    const TAG_LAST_ACTIVITY_DATE = 'LASTACTIVI';
+    const TAG_REGISTRATION_DATE =  'REGISTRATI';
+    const TAG_CITY =               'CITY';
+
     protected $userRepository;
 
     public function __construct(UserRepository $userRepository)
@@ -73,11 +83,14 @@ class SubscriberProvider implements ProviderInterface
         $users = $this->userRepository->findSubscribers();
 
         $subscribers = array_map(function(User $user) {
-            $subscriber = new Subscriber($user->getEmail());
-            $subscriber
-                ->setFirstname($user->getFirstname())
-                ->getLastname($user->getLastname())
-            ;
+            $subscriber = new Subscriber($user->getEmail(), [
+                self::TAG_NICKNAME => $user->getNickname(),
+                self::TAG_GENDER => $user->getGender(),
+                self::TAG_BIRTHDATE => $user->getBirthdate() ? $user->getBirthdate()->format('Y-m-d') : null,
+                self::TAG_CITY => $user->getCity(),
+                self::TAG_LAST_ACTIVITY_DATE => $user->getLastActivityDate() ? $user->getLastActivityDate()->format('Y-m-d') : null,
+                self::TAG_REGISTRATION_DATE => $user->getRegistrationDate() ? $user->getRegistrationDate()->format('Y-m-d') : null,
+            ]);
 
             return $subscriber;
         }, $users);
@@ -87,16 +100,6 @@ class SubscriberProvider implements ProviderInterface
 }
 ```
 
-The subscriber array will then be validated so be sure to format it accordingly.
+### Synchronizing subscibers
 
-### Subscriber format
-
-A subscriber should be returned as a formatted array:
-
-```php
-$subscriber = [
-    'email' => 'foo@bar.com',
-    'fistname' => 'Charles',
-    'lastname' => 'Terrasse'
-];
-```
+You can then synchronize all subscribers by calling the symfony command `app/console betacie:mailchimp:synchronize-subscribers`.
