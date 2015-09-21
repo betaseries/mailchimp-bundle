@@ -12,6 +12,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
 use Monolog\Logger;
 use Betacie\MailchimpBundle\Provider\ProviderInterface;
+use Betacie\MailchimpBundle\Subscriber\SubscriberList;
 
 class SynchroniseSubscribersCommand extends ContainerAwareCommand
 {
@@ -43,7 +44,11 @@ class SynchroniseSubscribersCommand extends ContainerAwareCommand
             $providerServiceKey = $listParameters['subscriber_provider'];
 
             $provider = $this->getProvider($providerServiceKey);
-            $this->getContainer()->get('betacie_mailchimp.list_synchronizer')->synchronize($listName, $provider);
+            $list = new SubscriberList($listName, $provider, [
+                'mc_language' => isset($listParameters['mc_language']) ? $listParameters['mc_language'] : null
+            ]);
+
+            $this->getContainer()->get('betacie_mailchimp.list_synchronizer')->synchronize($list);
         }
     }
 

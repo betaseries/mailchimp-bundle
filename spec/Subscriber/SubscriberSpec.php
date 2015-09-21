@@ -22,15 +22,14 @@ class SubscriberSpec extends ObjectBehavior
         $this->getEmail()->shouldReturn('charles@terrasse.fr');
     }
 
-    function it_can_have_a_firstname()
+    function it_has_default_merge_tags()
     {
-        $this->setFirstname('Charles')->shouldReturn($this);
-        $this->getFirstname()->shouldReturn('Charles');
+        $this->getMergeTags()->shouldReturn([]);
     }
 
-    function it_can_have_a_lastname()
+    function it_can_have_merge_tags()
     {
-        $this->setLastname('Terrasse')->shouldReturn($this);
-        $this->getLastname()->shouldReturn('Terrasse');
+        $this->beConstructedWith('charles@terrasse.fr', $tags = ['FIRSTNAME' => 'Charles']);
+        $this->getMergeTags()->shouldReturn($tags);
     }
 }

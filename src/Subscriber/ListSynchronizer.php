@@ -17,22 +17,22 @@ class ListSynchronizer
         $this->logger = $logger;
     }
 
-    public function synchronize($listName, ProviderInterface $provider)
+    public function synchronize(SubscriberList $list)
     {
-        $listId = $this->getListId($listName);
+        $listId = $this->getListId($list->getName());
 
-        $subscribers = $provider->getSubscribers();
+        $subscribers = $list->getProvider()->getSubscribers();
 
-        $this->batchSubscribe($listId, $subscribers);
+        $this->batchSubscribe($listId, $subscribers, $list->getOptions());
         $this->unsubscribeDifference($listId, $subscribers);
     }
 
-    protected function batchSubscribe($listId, array $subscribers = [])
+    protected function batchSubscribe($listId, array $subscribers = [], array $listOptions = [])
     {
-        $subscribers = array_map(function(Subscriber $subscriber) {
+        $subscribers = array_map(function(Subscriber $subscriber) use ($listOptions) {
             return [
                 'email' => ['email' => $subscriber->getEmail()],
-                'merge_vars' => $subscriber->getMergeTags()
+                'merge_vars' => array_merge($listOptions, $subscriber->getMergeTags())
             ];
         }, $subscribers);
 
