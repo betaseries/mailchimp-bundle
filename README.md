@@ -2,7 +2,7 @@
 
 # mailchimp-bundle
 
-This bundle will help you synchronise your project's users into MailChimp. New users will be added to MailChimp, existing users will be updated and user no longer in your project will be deleted of MailChimp.
+This bundle will help you synchronise your project's users into MailChimp. New users will be added to MailChimp, existing users will be updated and user no longer in your project will be deleted from MailChimp.
 
 ## Setup
 

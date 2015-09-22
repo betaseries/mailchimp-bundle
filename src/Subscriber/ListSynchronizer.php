@@ -4,67 +4,40 @@ namespace Betacie\MailchimpBundle\Subscriber;
 
 use Mailchimp;
 use Psr\Log\LoggerInterface;
-use Betacie\MailchimpBundle\Provider\ProviderInterface;
 
 class ListSynchronizer
 {
-    protected $mailchimp;
+
+    protected $listRepository;
     protected $logger;
 
-    public function __construct(Mailchimp $mailchimp, LoggerInterface $logger)
+    public function __construct(ListRepository $listRepository, LoggerInterface $logger)
     {
-        $this->mailchimp = $mailchimp;
+        $this->listRepository = $listRepository;
         $this->logger = $logger;
     }
 
     public function synchronize(SubscriberList $list)
     {
-        $listId = $this->getListId($list->getName());
+        $listData = $this->listRepository->findByName($list->getName());
 
         $subscribers = $list->getProvider()->getSubscribers();
 
-        $this->batchSubscribe($listId, $subscribers, $list->getOptions());
-        $this->unsubscribeDifference($listId, $subscribers);
+        $this->unsubscribeDifference($listData, $subscribers);
+        $this->batchSubscribe($listData, $subscribers, $list->getOptions());
     }
 
-    protected function batchSubscribe($listId, array $subscribers = [], array $listOptions = [])
+    protected function batchSubscribe(array $listData, array $subscribers = [], array $options = [])
     {
-        $subscribers = array_map(function(Subscriber $subscriber) use ($listOptions) {
-            return [
-                'email' => ['email' => $subscriber->getEmail()],
-                'merge_vars' => array_merge($listOptions, $subscriber->getMergeTags())
-            ];
+        $this->listRepository->batchSubscribe($listData['id'], $subscribers, $options);
+    }
+
+    protected function unsubscribeDifference(array $listData, array $subscribers)
+    {
+        $mailchimpEmails = $this->listRepository->getSubscriberEmails($listData);
+        $internalEmails = array_map(function(Subscriber $subscriber) {
+            return $subscriber->getEmail();
         }, $subscribers);
-
-        $result = $this->mailchimp->lists->batchSubscribe(
-            $listId,
-            $subscribers,
-            false, // do not use dual optin (to prevent sending another confirmation e-mail)
-            true // do update the subscriber if it already exists
-        );
-
-        if ($result['add_count'] > 0) {
-            $this->logger->info(sprintf('%s subscribers were added.', $result['add_count']));
-        }
-
-        if ($result['update_count'] > 0) {
-            $this->logger->info(sprintf('%s subscribers were updated.', $result['update_count']));
-        }
-
-        if ($result['error_count'] > 0) {
-            $this->logger->error(sprintf('%s subscribers errored.', $result['error_count']));
-            foreach ($result['errors'] as $error) {
-                $this->logger->error(sprintf('Subscriber "%s" has not been processed: "%s"', $error['email']['email'], $error['error']));
-            }
-        }
-    }
-
-    protected function unsubscribeDifference($listId, $subscribers)
-    {
-        $mailchimpSubscribers = $this->mailchimp->lists->members($listId);
-        $mailchimpEmails = array_map(function($data) { return $data['email']; }, $mailchimpSubscribers['data']);
-
-        $internalEmails = array_map(function(Subscriber $subscriber) { return $subscriber->getEmail(); }, $subscribers);
 
         // emails that are present in mailchimp but not internally should be unsubscribed
         $diffenceEmails = array_diff($mailchimpEmails, $internalEmails);
@@ -72,48 +45,6 @@ class ListSynchronizer
             return;
         }
 
-        $diffenceEmails = array_map(function($email) {
-            return [
-                'email' => $email,
-            ];
-        }, $diffenceEmails);
-
-        $result = $this->mailchimp->lists->batchUnsubscribe(
-            $listId,
-            $diffenceEmails,
-            true, // and remove it from the list
-            false // do not send goodbye email
-        );
-
-        if ($result['success_count'] > 0) {
-            $this->logger->info(sprintf('%s emails were unsubscribed from mailchimp.', $result['success_count']));
-        }
-
-        if ($result['error_count'] > 0) {
-            $this->logger->error(sprintf('%s subscribers failed to be unsubscribed.', $result['error_count']));
-            foreach ($result['errors'] as $error) {
-                $this->logger->error(sprintf('Subscriber "%s" has not been unsubscribed: "%s"', $error['email']['email'], $error['error']));
-            }
-        }
-    }
-
-    protected function getListId($listName)
-    {
-        $listData = $this->mailchimp->lists->getList([
-            'list_name' => $listName
-        ]);
-
-        if (
-            !isset($listData['total']) || 
-            $listData['total'] === 0
-        ) {
-            throw new \RuntimeException(sprintf('The list "%s" was not found in Mailchimp. You need to create it first in Mailchimp backend.', $listName));
-        }
-
-        if (!isset($listData['data'][0]['id'])) {
-            throw new \RuntimeException('List id could not be found.');
-        }
-
-        return $listData['data'][0]['id'];
+        $this->listRepository->batchUnsubscribe($listData['id'], $diffenceEmails);
     }
 }

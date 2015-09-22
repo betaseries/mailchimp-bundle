@@ -1,13 +1,20 @@
 parameters:
     betacie_mailchimp.list_synchronizer_class: Betacie\MailchimpBundle\Subscriber\ListSynchronizer
+    betacie_mailchimp.list_repository_class: Betacie\MailchimpBundle\Subscriber\ListRepository
 
 services:
     betacie_mailchimp.mailchimp_master:
         class: Mailchimp
         arguments: ['%betacie_mailchimp.api_key%']
 
+    betacie_mailchimp.list_repository:
+        class: %betacie_mailchimp.list_repository_class%
+        arguments:
+            - '@betacie_mailchimp.mailchimp_master'
+            - '@logger'
+
     betacie_mailchimp.list_synchronizer:
         class: %betacie_mailchimp.list_synchronizer_class%
         arguments:
-            - '@betacie_mailchimp.mailchimp_master'
+            - '@betacie_mailchimp.list_repository'
             - '@logger'

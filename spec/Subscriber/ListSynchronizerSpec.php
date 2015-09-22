@@ -4,14 +4,14 @@ namespace spec\Betacie\MailchimpBundle\Subscriber;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Mailchimp;
 use Psr\Log\LoggerInterface;
+use Betacie\MailchimpBundle\Subscriber\ListRepository;
 
 class ListSynchronizerSpec extends ObjectBehavior
 {
-    function let(Mailchimp $mailchimp, LoggerInterface $logger)
+    function let(ListRepository $listRepository, LoggerInterface $logger)
     {
-        $this->beConstructedWith($mailchimp, $logger);
+        $this->beConstructedWith($listRepository, $logger);
     }
 
     function it_is_initializable()
