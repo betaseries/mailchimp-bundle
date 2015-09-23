@@ -1,8 +1,10 @@
 parameters:
     betacie_mailchimp.list_synchronizer_class: Betacie\MailchimpBundle\Subscriber\ListSynchronizer
     betacie_mailchimp.list_repository_class: Betacie\MailchimpBundle\Subscriber\ListRepository
+    betacie_mailchimp.subscriber_listener_class: Betacie\MailchimpBundle\Event\SubscriberListener
 
 services:
+    # MailChimp
     betacie_mailchimp.mailchimp_master:
         class: Mailchimp
         arguments: ['%betacie_mailchimp.api_key%']
@@ -18,3 +20,12 @@ services:
         arguments:
             - '@betacie_mailchimp.list_repository'
             - '@logger'
+
+    # Events
+    betacie_mailchimp.subscriber_listener:
+        class: %betacie_mailchimp.subscriber_listener_class%
+        arguments:
+            - '@betacie_mailchimp.list_repository'
+        tags:
+            - { name: kernel.event_listener, event: betacie.mailchimp.subscribe, method: onSubscribe }
+            - { name: kernel.event_listener, event: betacie.mailchimp.unsubscribe, method: onUnsubscribe }

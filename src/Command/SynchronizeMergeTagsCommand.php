@@ -14,7 +14,7 @@ use Monolog\Logger;
 use Betacie\MailchimpBundle\Provider\ProviderInterface;
 use Betacie\MailchimpBundle\Subscriber\SubscriberList;
 
-class SynchroniseSubscribersCommand extends ContainerAwareCommand
+class SynchroniseMergeTagsCommand extends ContainerAwareCommand
 {
     protected function configure()
     {

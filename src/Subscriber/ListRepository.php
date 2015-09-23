@@ -35,6 +35,18 @@ class ListRepository
         return $listData['data'][0];
     }
 
+    public function subscribe($listId, Subscriber $subscriber)
+    {
+        $this->mailchimp->lists->subscribe(
+            $listId,
+            ['email' => $subscriber->getEmail()],
+            $subscriber->getMergeTags(),
+            'html', // email preference
+            false, // do not use dual optin (to prevent sending another confirmation e-mail)
+            true // do update the subscriber if it already exists
+        );
+    }
+
     public function batchSubscribe($listId, array $subscribers, array $options = [])
     {
         $subscribers = $this->getMailchimpFormattedSubscribers($subscribers, $options);
@@ -58,6 +70,17 @@ class ListRepository
         } 
 
         $this->logResult($result);
+    }
+
+    public function unsubscribe($listId, Subscriber $subscriber)
+    {
+        $this->mailchimp->lists->unsubscribe(
+            $listId,
+            ['email' => $subscriber->getEmail()],
+            true, // and remove it from the list
+            false, // do not send goodbye email
+            false // do not send notify
+        );
     }
 
     public function batchUnsubscribe($listId, array $emails)
