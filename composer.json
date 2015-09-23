@@ -15,9 +15,9 @@
     },
     "require": {
         "mailchimp/mailchimp": "^2.0",
-        "phpspec/phpspec": "^2.3",
+        "phpspec/phpspec": "~2@dev",
         "psr/log": "^1.0",
-        "symfony/options-resolver": "^2.7"
+        "symfony/options-resolver": "~2@dev"
     },
     "config": {
         "bin-dir": "bin"
