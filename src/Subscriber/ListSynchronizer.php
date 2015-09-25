@@ -7,7 +7,6 @@ use Psr\Log\LoggerInterface;
 
 class ListSynchronizer
 {
-
     protected $listRepository;
     protected $logger;
 
@@ -46,5 +45,39 @@ class ListSynchronizer
         }
 
         $this->listRepository->batchUnsubscribe($listData['id'], $diffenceEmails);
+    }
+
+    public function synchronizeMergeTags($listName, array $mergeTags = [])
+    {
+        $listData = $this->listRepository->findByName($listName);
+        $listId = $listData['id'];
+
+        $mailChimpMergeTags = $this->listRepository->findMergeTags($listId);
+
+        foreach ($mailChimpMergeTags as $tag) {
+            if (!$this->tagExists($tag['tag'], $mergeTags)) {
+                // tag only exist in mailchimp, we are removing it
+                $this->listRepository->deleteMergeTag($listId, $tag['tag']);
+            }
+        }
+
+        foreach ($mergeTags as $tag) {
+            if ($this->tagExists($tag['tag'], $mailChimpMergeTags)) {
+                $this->listRepository->updateMergeTag($listId, $tag);
+            } else {
+                $this->listRepository->addMergeTag($listId, $tag);
+            }
+        }
+    }
+
+    protected function tagExists($tagName, array $tags)
+    {
+        foreach ($tags as $tag) {
+            if ($tag['tag'] == $tagName) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

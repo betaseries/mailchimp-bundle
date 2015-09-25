@@ -6,6 +6,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
 use Betacie\MailchimpBundle\Subscriber\ListRepository;
+use Betacie\MailchimpBundle\Subscriber\SubscriberList;
 
 class ListSynchronizerSpec extends ObjectBehavior
 {
@@ -17,5 +18,23 @@ class ListSynchronizerSpec extends ObjectBehavior
     function it_is_initializable()
     {
         $this->shouldHaveType('Betacie\MailchimpBundle\Subscriber\ListSynchronizer');
+    }
+
+    function it_synchronize_merge_tags($listRepository, SubscriberList $list)
+    {
+        $listRepository->findByName('foobar')->willReturn(['id' => 123]);
+        $listRepository->findMergeTags(123)->willReturn([
+            ['tag' => 'TAG1', 'name' => 'Tag 1'],
+            ['tag' => 'OBSOLETE', 'name' => 'This tag should not exist'],
+        ]);
+
+        $listRepository->deleteMergeTag(123, 'OBSOLETE')->shouldBeCalled();
+        $listRepository->updateMergeTag(123, ['tag' => 'TAG1', 'name' => 'Tag 1', 'options' => ['req' => true]])->shouldBeCalled();
+        $listRepository->addMergeTag(123, ['tag' => 'TAG2', 'name' => 'Tag 2', 'options' => ['req' => false]])->shouldBeCalled();
+
+        $this->synchronizeMergeTags('foobar', [
+            ['tag' => 'TAG1', 'name' => 'Tag 1', 'options' => ['req' => true]],
+            ['tag' => 'TAG2', 'name' => 'Tag 2', 'options' => ['req' => false]],
+        ]);
     }
 }

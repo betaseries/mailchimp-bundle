@@ -8,9 +8,12 @@ You can [synchronize all your subscribers at once with a Symfony command](#full-
 
 You can also [synchronize subscribe / unsubscribe one at a time with events](#unit-synchronization-with-events).
 
+Optionnaly, it also help you to [synchronize your list merge tags](#synchronize-merge-tags).
+
 * [Setup](#setup)
 * [Configuration](#configuration)
 * [Usage](#usage)
+    * [Synchronize merge tags](#synchronize-merge-tags)
     * [Full synchronization with command](#full-synchronization-with-command)
     * [Unit synchronization with events](#unit-synchronization-with-events)
 
@@ -42,8 +45,22 @@ betacie_mailchimp:
     api_key: YOURMAILCHIMPAPIKEY
     lists:
         list1:
-            # mc_language: 'fr'
+            # optional language option, used only in full synchronization
+            mc_language: 'fr'
+
+            # optional merge tags you want to synchronize
+            merge_tags:
+                -
+                    tag: FIRSTTAG
+                    name: My first tag
+                    options: {"field_type":"radio", "choices": ["foo", "bar"]}
+                -
+                    tag: SECONDTAG
+                    name: My second tag
+                    
+            # provider used in full synchronization
             subscriber_providers: 'yourapp.provider1'
+
         list2:
             subscriber_providers: 'yourapp.provider2'
 ```
@@ -53,6 +70,16 @@ Where `listX` is the name of your MailChimp lists, and `yourapp.providerX` is th
 Defining lists and providers is necessary only if you use full synchronization with the command.
 
 ## Usage
+
+### Synchronize merge tags
+
+Merge tags (or merge vars) are values you can add to your subscribers (for example the firstsname or birthdate of your user). You can then use these tags in your newsletters or create segments out of them.
+
+To learn more about merge tags, please see this [guide on MailChimp](http://kb.mailchimp.com/merge-tags/using/getting-started-with-merge-tags).
+
+To synchronize you need to create your lists in MailChimp backend first. Then you need to add them in your `config.yml` as shown in the [above configuration](#configuration). The `options` you can provide are the same as the one found in [MailChimp API](https://apidocs.mailchimp.com/api/2.0/lists/merge-var-add.php).
+
+You can then synchronize the tags using the `app/console betacie:mailchimp:synchronize-merge-tags` command. Note that every tag that are present in MailChimp but are not defined in your configuration **will be deleted along with associated values**.
 
 ### Full synchronization with command
 
@@ -152,7 +179,7 @@ public function newUser(User $user)
 }
 ```
 
-If you want to tell MailChimp that an existing subscriber has changed its e-mail, you can do it with the `new-email` option:
+If you want to tell MailChimp that an existing subscriber has changed its e-mail, you can do it by adding the `new-email` option to the merge tags:
 
 ```php
 <?php

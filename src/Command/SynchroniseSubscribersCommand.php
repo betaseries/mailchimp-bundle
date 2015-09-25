@@ -19,7 +19,7 @@ class SynchroniseSubscribersCommand extends ContainerAwareCommand
     protected function configure()
     {
         $this
-            ->setDescription('Synchronizing subscribers in Mailchimp')
+            ->setDescription('Synchronizing subscribers in MailChimp')
             ->setName('betacie:mailchimp:synchronize-subscribers')
         ;
     }
@@ -34,12 +34,6 @@ class SynchroniseSubscribersCommand extends ContainerAwareCommand
             OutputInterface::VERBOSITY_VERY_VERBOSE => Logger::DEBUG,
             OutputInterface::VERBOSITY_DEBUG => Logger::DEBUG,
         )));
-
-        $this->getContainer()->get('event_dispatcher')->dispatch(
-            \Betacie\MailchimpBundle\Event\SubscriberEvent::EVENT_UNSUBSCRIBE,
-            new \Betacie\MailchimpBundle\Event\SubscriberEvent('diwi', new \Betacie\MailchimpBundle\Subscriber\Subscriber('foo@gabrielpillet.com'))
-        );
-        die();
 
         $lists = $this->getContainer()->getParameter('betacie_mailchimp.lists');
         if (sizeof($lists) == 0) {

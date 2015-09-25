@@ -135,6 +135,46 @@ class ListRepository
         return $emails;
     }
 
+    public function findMergeTags($listId)
+    {
+        $result = $this->mailchimp->lists->mergeVars([$listId]);
+        if (!isset($result['data'][0]['merge_vars'])) {
+            throw new \RuntimeException(sprintf('Could not find merge tags for list "%s".', $listId));
+        }
+
+        $tags = $result['data'][0]['merge_vars'];
+        $tags = array_filter($tags, function($tag) {
+            // we exclude the EMAIL tag that can't be worked on
+            return $tag['tag'] !== 'EMAIL';
+        });
+
+        return array_values($tags);
+    }
+
+    public function deleteMergeTag($listId, $tag)
+    {
+        $this->mailchimp->lists->mergeVarDel($listId, $tag);
+
+        $this->logger->info(sprintf('Tag "%s" has been removed from MailChimp.', $tag));
+    }
+
+    public function addMergeTag($listId, array $tag)
+    {
+        $this->mailchimp->lists->mergeVarAdd($listId, $tag['tag'], $tag['name'], $tag['options']);
+
+        $this->logger->info(sprintf('Tag "%s" has been added to MailChimp.', $tag['name']));
+    }
+
+    public function updateMergeTag($listId, array $tag)
+    {
+        $tag['options']['name'] = $tag['name'];
+        unset($tag['options']['field_type']);
+
+        $this->mailchimp->lists->mergeVarUpdate($listId, $tag['tag'], $tag['options']);
+
+        $this->logger->info(sprintf('Tag "%s" has been updated in MailChimp.', $tag['name']));
+    }
+
     protected function getMailchimpFormattedSubscribers(array $subscribers, array $options)
     {
         return array_map(function(Subscriber $subscriber) use ($options) {

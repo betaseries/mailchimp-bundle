@@ -180,6 +180,64 @@ class ListRepositorySpec extends ObjectBehavior
         $this->unsubscribe(1337, $subscriber);
     }
 
+    function it_finds_merge_tags($mailchimpLists)
+    {
+        $mailchimpLists
+            ->mergeVars([123])
+            ->willReturn([
+                'data' => [
+                    [
+                        'id' => 123, 
+                        'merge_vars' => [
+                            ['tag' => 'EMAIL'], //this tag should be ignored
+                            ['tag' => 'FOO', 'name' => 'Bar'],
+                        ]
+                    ]
+                ]
+            ])
+        ;
+
+        $this->findMergeTags(123)->shouldReturn([['tag' => 'FOO', 'name' => 'Bar']]);
+    }
+
+    function it_deletes_a_merge_tag($mailchimpLists, $logger)
+    {
+        $mailchimpLists->mergeVarDel(123, 'FOO')->shouldBeCalled();
+
+        $this->deleteMergeTag(123, 'FOO');
+
+        $logger->info('Tag "FOO" has been removed from MailChimp.');
+    }
+
+    function it_adds_a_merge_tag($mailchimpLists, $logger)
+    {
+        $mailchimpLists->mergeVarAdd(123, 'FOO', 'Foo bar', ['req' => true])->shouldBeCalled();
+
+        $this->addMergeTag(123, [
+            'tag' => 'FOO',
+            'name' => 'Foo bar',
+            'options' => ['req' => true]
+        ]);
+
+        $logger->info('Tag "FOO" has been added to MailChimp.');
+    }
+
+    function it_updates_a_merge_tag($mailchimpLists, $logger)
+    {
+        $mailchimpLists->mergeVarUpdate(123, 'FOO', ['name' => 'Foo bar', 'req' => true])->shouldBeCalled();
+
+        $this->updateMergeTag(123, [
+            'tag' => 'FOO',
+            'name' => 'Foo bar',
+            'options' => [
+                'req' => true, 
+                'field_type' => 'text' // should be removed, cannot be updated
+            ]
+        ]);
+
+        $logger->info('Tag "FOO" has been updated in MailChimp.');
+    }
+
     protected function prepareSubscriber(Subscriber $subscriber)
     {
         $subscriber->getEmail()->willReturn('charles@terrasse.fr');

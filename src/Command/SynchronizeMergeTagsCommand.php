@@ -14,13 +14,13 @@ use Monolog\Logger;
 use Betacie\MailchimpBundle\Provider\ProviderInterface;
 use Betacie\MailchimpBundle\Subscriber\SubscriberList;
 
-class SynchroniseMergeTagsCommand extends ContainerAwareCommand
+class SynchronizeMergeTagsCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setDescription('Synchronizing subscribers in Mailchimp')
-            ->setName('betacie:mailchimp:synchronize-subscribers')
+            ->setDescription('Synchronizing merge tags in MailChimp')
+            ->setName('betacie:mailchimp:synchronize-merge-tags')
         ;
     }
 
@@ -35,41 +35,15 @@ class SynchroniseMergeTagsCommand extends ContainerAwareCommand
             OutputInterface::VERBOSITY_DEBUG => Logger::DEBUG,
         )));
 
-        $this->getContainer()->get('event_dispatcher')->dispatch(
-            \Betacie\MailchimpBundle\Event\SubscriberEvent::EVENT_UNSUBSCRIBE,
-            new \Betacie\MailchimpBundle\Event\SubscriberEvent('diwi', new \Betacie\MailchimpBundle\Subscriber\Subscriber('foo@gabrielpillet.com'))
-        );
-        die();
-
         $lists = $this->getContainer()->getParameter('betacie_mailchimp.lists');
         if (sizeof($lists) == 0) {
             throw new \RuntimeException("No Mailchimp list has been defined. Check the your config.yml file based on MailchimpBundle's README.md");
         }
 
         foreach ($lists as $listName => $listParameters) {
-            $providerServiceKey = $listParameters['subscriber_provider'];
-
-            $provider = $this->getProvider($providerServiceKey);
-            $list = new SubscriberList($listName, $provider, [
-                'mc_language' => isset($listParameters['mc_language']) ? $listParameters['mc_language'] : null
-            ]);
-
-            $this->getContainer()->get('betacie_mailchimp.list_synchronizer')->synchronize($list);
+            $this->getContainer()->get('betacie_mailchimp.list_synchronizer')
+                ->synchronizeMergeTags($listName, $listParameters['merge_tags']);
+            ;
         }
-    }
-
-    protected function getProvider($providerServiceKey)
-    {
-        try {
-            $provider = $this->getContainer()->get($providerServiceKey);
-        } catch (ServiceNotFoundException $e) {
-            throw new \InvalidArgumentException(sprintf('Provider "%s" should be defined as a service.', $providerServiceKey), $e->getCode(), $e);
-        }
-
-        if (!$provider instanceof ProviderInterface) {
-            throw new \InvalidArgumentException(sprintf('Provider "%s" should implement Betacie\MailchimpBundle\Provider\ProviderInterface.', $providerServiceKey));
-        }
-
-        return $provider;
     }
 }
